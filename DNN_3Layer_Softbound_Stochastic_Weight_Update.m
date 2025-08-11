@@ -101,9 +101,9 @@ for epoch=1:epoch_number
                     % if epoch < 10
                     %     [w23]  = cal_pulse_new2(w23,device,array.w23,len_bit,d3,out2);
                     % end 
-                [w34]  = cal_pulse_new2(w34,device,array.w34,len_bit,d4,out3);
-                [w23]  = cal_pulse_new2(w23,device,array.w23,len_bit,d3,out2);
-                [w12]  = cal_pulse_new2(w12,device,array.w12,len_bit,d2,out1);
+                [w34]  = stochastic_pulse_module(w34,device,array.w34,len_bit,d4,out3);
+                [w23]  = stochastic_pulse_module(w23,device,array.w23,len_bit,d3,out2);
+                [w12]  = stochastic_pulse_module(w12,device,array.w12,len_bit,d2,out1);
                 
     end
 
@@ -184,7 +184,7 @@ function [array] = W_init(NumNeurons,device)
     end
 end
 
-function [w]  = cal_pulse_new2(w,device,array,len_bit,d,x) % stochastic pulse update module
+function [w]  = stochastic_pulse_module(w,device,array,len_bit,d,x) % generate stochastic pulse streams and calculate pulse coincidences
 A = [length(d), length(x)];
     % x=+ & d=+ case: x*d > 0, so potentiation case
     for i =1:len_bit
@@ -211,10 +211,10 @@ A = [length(d), length(x)];
 end
 
 function [w] = w_update_new(w, stream, array, device)
-    idx=find(stream == 2);
+    idx=find(stream == 2); % Coincidences for potentiation
         dw = array.slope_p(idx).*(array.bmax(idx)-w(idx))+device.dw_min*device.dw_min_std*randn(length(idx),1);
         w(idx) = w(idx) + dw;
-    idx=find(stream == -2);
+    idx=find(stream == -2); % Coincidences for depression
         dw = -array.slope_n(idx).*(array.bmin(idx)-w(idx))+device.dw_min*device.dw_min_std*randn(length(idx),1);
         w(idx) = w(idx) + dw;
 end
