@@ -7,11 +7,11 @@ trainset_labels=loadMNISTLabels('train-labels-idx1-ubyte');
 image_resolution = 784; % input image size
 
 %% network parameters
-NumNeurons = [image_resolution 256 128 10];   % Number of neurons for each neuron layers(only 2 hidden layer is avaliable)
+NumNeurons = [image_resolution 256 128 10];   % Number of neurons for each neuron layers
 neuron_type = 'sigmoid';  % 'sigmoid', 'relu' is available
 error_function = 'mean_squared_error'; % 'mean_squared_error', 'cross_entropy_error' is available
 LR = 0.04; % learning rate 
-    LR_decay_period = 1; % unit: epoch
+    LR_decay_period = 1; % per epoch
     LR_decay_rate = 0.5; % 1: no LR decay
 epoch_number = 30; accuracy = zeros(epoch_number,1); E = zeros(epoch_number,1);
 batch_size = 1; % 1: stochastic gradient decent
@@ -34,7 +34,8 @@ device.up_down_dtod = 0; % d2d variation
 device.dw_min_dtod = 0; % d2d variation
 
 device.Nstates = round((device.wmax-device.wmin) / device.dw_min);
-len_bit = round( LR / (device.dw_min) );
+len_bit = round( LR / (device.dw_min) ); % the length of stochastic bitstream for fully parallel crossbar updates
+
 %% weight initialization
 array = W_init(NumNeurons,device);
 w12 = device.up_down + (randn(array.w12.size)*write_noise); % around the symmetry point
@@ -230,4 +231,5 @@ function nbytes = cal_nbytes(accuracy_train, accuracy_test, len_bit, epoch, epoc
     nbytes = fprintf('Epoch:\t\t%d/%d\nTime:\t\t%.1fs/%um%us (Time_left: %um%us)\n', ...
         epoch, epoch_number, t_this_epoch, t_total_min, ...
         t_total_sec, t_time_left_min, t_time_left_sec);
+
 end
